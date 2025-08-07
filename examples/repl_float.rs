@@ -1,5 +1,5 @@
 //! Demonstrates the use of [read_and()]:
-//! 
+//!
 //! The provided closure:
 //! 1. Takes a line of input (a [String])
 //! 2. Performs some calculation (using [FromStr])

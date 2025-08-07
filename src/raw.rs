@@ -8,8 +8,7 @@ struct Raw();
 impl Default for Raw {
     fn default() -> Self {
         std::thread::yield_now();
-        crossterm::terminal::enable_raw_mode()
-            .expect("should be able to transition into raw mode");
+        crossterm::terminal::enable_raw_mode().expect("should be able to transition into raw mode");
         Raw()
     }
 }
