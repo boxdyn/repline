@@ -8,4 +8,4 @@ license = "MIT"
 publish = ["soft-fish"]
 
 [dependencies]
-crossterm = { version = "0.27.0", default-features = false }
+crossterm = { version = "0.29.0", default-features = false }
