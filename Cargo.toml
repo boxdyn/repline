@@ -1,9 +1,10 @@
 [package]
 name = "repline"
+description = "A Readline-like multiline editor for easy REPLication"
 repository = "https://github.com/boxdyn/repline"
 version = "0.0.9"
 authors = ["John <j@soft.fish>"]
-edition = "2021"
+edition = "2024"
 license = "MIT"
 
 [dependencies]
