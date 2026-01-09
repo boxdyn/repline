@@ -223,6 +223,24 @@ impl<'a> Editor<'a> {
         matches!(self.tail.front(), None | Some('\n'))
     }
 
+    /// Returns true if the character before the cursor is whitespace
+    pub fn at_word_start(&self) -> bool {
+        self.head
+            .back()
+            .copied()
+            .map(|c| c.is_alphanumeric() || c == '\n')
+            .unwrap_or(true)
+    }
+
+    /// Returns true if the character after the cursor is whitespace
+    pub fn at_word_end(&self) -> bool {
+        self.tail
+            .front()
+            .copied()
+            .map(|c| c.is_alphanumeric() || c == '\n')
+            .unwrap_or(true)
+    }
+
     /// Returns true if the buffer is empty.
     pub fn is_empty(&self) -> bool {
         self.at_start() && self.at_end()
@@ -327,6 +345,27 @@ impl<'a> Editor<'a> {
         Ok(())
     }
 
+    /// Moves the cursor to the previous whitespace boundary
+    pub fn cursor_word_back<W: Write>(&mut self, w: &mut W) -> ReplResult<()> {
+        let target = self.at_word_start();
+        self.cursor_back(w)?;
+        while self.at_word_start() == target && !self.at_start() {
+            self.cursor_back(w)?
+        }
+        Ok(())
+    }
+
+    /// Moves the cursor to the next whitespace boundary
+    pub fn cursor_word_forward<W: Write>(&mut self, w: &mut W) -> ReplResult<()> {
+        let target = self.at_word_end();
+        self.cursor_forward(w)?;
+        while self.at_word_end() == target && !self.at_end() {
+            self.cursor_forward(w)?
+        }
+        Ok(())
+    }
+
+    /// Moves the cursor to the start of the buffer
     pub fn cursor_start<W: Write>(&mut self, w: &mut W) -> ReplResult<()> {
         while !self.at_start() {
             self.cursor_back(w)?
@@ -334,6 +373,7 @@ impl<'a> Editor<'a> {
         Ok(())
     }
 
+    /// Moves the cursor to the end of the buffer
     pub fn cursor_end<W: Write>(&mut self, w: &mut W) -> ReplResult<()> {
         while !self.at_end() {
             self.cursor_forward(w)?
