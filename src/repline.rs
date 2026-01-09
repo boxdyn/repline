@@ -6,7 +6,7 @@
 use crate::{editor::Editor, error::*, iter::*, raw::raw};
 use std::{
     collections::VecDeque,
-    io::{stdout, Bytes, Read, Result, Write},
+    io::{Bytes, Read, Result, Write, stdout},
 };
 
 /// Prompts the user, reads the lines. Not much more to it than that.
@@ -161,19 +161,44 @@ impl<'a, R: Read> Repline<'a, R> {
     fn csi<W: Write>(&mut self, w: &mut W) -> ReplResult<()> {
         match self.input.next().ok_or(Error::EndOfInput)?? {
             'A' if self.ed.at_start() && self.hindex > 0 => {
+                if self.history.len() > self.hindex {
+                    self.history[self.hindex] = self.ed.to_string()
+                } else {
+                    self.history_append(self.ed.to_string());
+                }
                 self.hindex -= 1;
-                self.restore_history(w)?;
+                self.restore_history(w, true)?;
             }
             'A' => self.ed.cursor_up(w)?,
             'B' if self.ed.at_end() && self.hindex < self.history.len().saturating_sub(1) => {
+                self.history[self.hindex] = self.ed.to_string();
                 self.hindex += 1;
-                self.restore_history(w)?;
+                self.restore_history(w, false)?;
             }
             'B' => self.ed.cursor_down(w)?,
             'C' => self.ed.cursor_forward(w)?,
             'D' => self.ed.cursor_back(w)?,
             'H' => self.ed.cursor_line_start(w)?,
             'F' => self.ed.cursor_line_end(w)?,
+            '1' => {
+                // TODO: this as a separate function
+                if let ';' = self.input.next().ok_or(Error::EndOfInput)??
+                    && let '5' = self.input.next().ok_or(Error::EndOfInput)??
+                {
+                    match self.input.next().ok_or(Error::EndOfInput)?? {
+                        'A' => self.print_err(w, "TODO: direction A")?,
+                        'B' => self.print_err(w, "TODO: direction B")?,
+                        'C' => self.ed.cursor_word_forward(w)?,
+                        'D' => self.ed.cursor_word_back(w)?,
+                        other => self.print_err(w, format_args!("Unhandled direction {other}"))?,
+                    }
+                } else {
+                    self.print_err(
+                        w,
+                        format_args!("\t\x1b[30mUnhandled control sequence\x1b[0m"),
+                    )?;
+                }
+            }
             '3' => {
                 if let '~' = self.input.next().ok_or(Error::EndOfInput)?? {
                     self.ed.delete(w)?;
@@ -193,7 +218,7 @@ impl<'a, R: Read> Repline<'a, R> {
                 if cfg!(debug_assertions) {
                     self.print_err(
                         w,
-                        format_args!("\t\x1b[30mUnhandled control sequence: {other:?}\x1b[0m"),
+                        format_args!("  \x1b[30mUnhandled control sequence: {other:?}\x1b[0m"),
                     )?;
                 }
             }
@@ -201,14 +226,17 @@ impl<'a, R: Read> Repline<'a, R> {
         Ok(())
     }
     /// Restores the currently selected history
-    fn restore_history<W: Write>(&mut self, w: &mut W) -> ReplResult<()> {
+    fn restore_history<W: Write>(&mut self, w: &mut W, upward: bool) -> ReplResult<()> {
         let Self { history, hindex, ed, .. } = self;
         if let Some(history) = history.get(*hindex) {
             ed.restore(history, w)?;
             ed.print_err(
-                format_args!("\t\x1b[30mHistory {hindex} restored!\x1b[0m"),
+                format_args!("  \x1b[30mHistory {hindex} restored!\x1b[0m"),
                 w,
             )?;
+            if upward {
+                ed.cursor_start(w)?;
+            }
         }
         Ok(())
     }
