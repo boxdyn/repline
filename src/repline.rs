@@ -55,6 +55,16 @@ impl<'a, R: Read> Repline<'a, R> {
         self.ed.color = color
     }
 
+    /// Set the terminal `begin` prompt, used for the first line
+    pub fn set_begin(&mut self, begin: &'a str) {
+        self.ed.begin = begin
+    }
+
+    /// Set the terminal `again` prompt, used for subsequent lines
+    pub fn set_again(&mut self, again: &'a str) {
+        self.ed.again = again
+    }
+
     /// Set the entire terminal prompt sequence
     pub fn set_prompt(&mut self, color: &'a str, begin: &'a str, again: &'a str) {
         let Editor { color: ed_color, begin: ed_begin, again: ed_again, .. } = &mut self.ed;
