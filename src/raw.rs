@@ -4,7 +4,10 @@
 pub fn raw() -> impl Drop {
     Raw::default()
 }
+
+/// Internal [`Drop`] object for [`raw`]
 struct Raw();
+
 impl Default for Raw {
     fn default() -> Self {
         std::thread::yield_now();
@@ -12,6 +15,7 @@ impl Default for Raw {
         Raw()
     }
 }
+
 impl Drop for Raw {
     fn drop(&mut self) {
         crossterm::terminal::disable_raw_mode()

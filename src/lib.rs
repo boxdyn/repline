@@ -9,5 +9,5 @@ pub mod prebaked;
 pub mod repline;
 
 pub use error::Error;
-pub use prebaked::{read_and, Response};
+pub use prebaked::{Response, read_and};
 pub use repline::Repline;

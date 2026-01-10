@@ -38,6 +38,8 @@ impl<'a, R: Read> Repline<'a, R> {
             ed: Editor::new(color, begin, again),
         }
     }
+
+    /// Consumes self, and produces a new [Repline] with the `new_input` stream
     pub fn swap_input<S: Read>(self, new_input: S) -> Repline<'a, S> {
         Repline {
             input: Chars(Flatten(new_input.bytes())),
@@ -47,6 +49,7 @@ impl<'a, R: Read> Repline<'a, R> {
             ed: self.ed,
         }
     }
+
     /// Set the terminal prompt color
     pub fn set_color(&mut self, color: &'a str) {
         self.ed.color = color
@@ -64,10 +67,12 @@ impl<'a, R: Read> Repline<'a, R> {
         self.ed.clear();
         self.hindex = self.history.len();
     }
+
     /// Clear the line
     pub fn deny(&mut self) {
         self.ed.clear()
     }
+
     /// Reads in a line, and returns it for validation
     pub fn read(&mut self) -> ReplResult<String> {
         const INDENT: &str = "    ";
@@ -130,19 +135,23 @@ impl<'a, R: Read> Repline<'a, R> {
             }
         }
     }
+
     /// Prints a message without moving the cursor
     pub fn print_inline(&mut self, value: impl std::fmt::Display) -> ReplResult<()> {
         let mut stdout = stdout().lock();
         self.print_err(&mut stdout, value)
     }
+
     /// Prints a message (ideally an error) without moving the cursor
     fn print_err<W: Write>(&self, w: &mut W, value: impl std::fmt::Display) -> ReplResult<()> {
         self.ed.print_err(value, w)
     }
+
     // Prints some debug info into the editor's buffer and the provided writer
     pub fn put<D: std::fmt::Display, W: Write>(&mut self, disp: D, w: &mut W) -> ReplResult<()> {
         self.ed.extend(format!("{disp}").chars(), w)
     }
+
     /// Handle ANSI Escape
     fn escape<W: Write>(&mut self, w: &mut W) -> ReplResult<()> {
         match self.input.next().ok_or(Error::EndOfInput)?? {
@@ -157,6 +166,7 @@ impl<'a, R: Read> Repline<'a, R> {
         }
         Ok(())
     }
+
     /// Handle ANSI Control Sequence Introducer
     fn csi<W: Write>(&mut self, w: &mut W) -> ReplResult<()> {
         match self.input.next().ok_or(Error::EndOfInput)?? {
@@ -225,6 +235,7 @@ impl<'a, R: Read> Repline<'a, R> {
         }
         Ok(())
     }
+
     /// Restores the currently selected history
     fn restore_history<W: Write>(&mut self, w: &mut W, upward: bool) -> ReplResult<()> {
         let Self { history, hindex, ed, .. } = self;

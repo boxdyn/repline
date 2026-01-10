@@ -10,7 +10,9 @@ pub mod chars {
     /// Invalid unicode codepoint found when iterating over [Chars]
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     pub struct BadUnicode(pub u32);
+
     impl std::error::Error for BadUnicode {}
+
     impl std::fmt::Display for BadUnicode {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             let Self(code) = self;
@@ -22,8 +24,10 @@ pub mod chars {
     /// <code>[Iterator]<Item = [char]></code>
     #[derive(Clone, Debug)]
     pub struct Chars<I: Iterator<Item = u8>>(pub I);
+
     impl<I: Iterator<Item = u8>> Iterator for Chars<I> {
         type Item = Result<char, BadUnicode>;
+
         fn next(&mut self) -> Option<Self::Item> {
             let Self(bytes) = self;
             let start = bytes.next()? as u32;
@@ -53,12 +57,14 @@ pub mod flatten {
     /// into a *non-[FusedIterator](std::iter::FusedIterator)* over `T`
     #[derive(Clone, Debug)]
     pub struct Flatten<T, I: Iterator<Item = T>>(pub I);
+
     impl<T, E, I: Iterator<Item = Result<T, E>>> Iterator for Flatten<Result<T, E>, I> {
         type Item = T;
         fn next(&mut self) -> Option<Self::Item> {
             self.0.next()?.ok()
         }
     }
+
     impl<T, I: Iterator<Item = Option<T>>> Iterator for Flatten<Option<T>, I> {
         type Item = T;
         fn next(&mut self) -> Option<Self::Item> {

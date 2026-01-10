@@ -3,9 +3,8 @@
 //! Constructs a [Repline] and repeatedly runs the provided closure on the input strings,
 //! obeying the closure's [Response].
 
-use std::{error::Error, io::Stdin};
-
 use crate::{error::Error as RlError, repline::Repline};
+use std::{error::Error, io::Stdin};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 /// Control codes for the [prebaked menu](read_and)

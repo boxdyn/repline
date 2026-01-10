@@ -200,6 +200,7 @@ impl<'a> Editor<'a> {
     pub fn at_start(&self) -> bool {
         self.head.is_empty()
     }
+
     /// Returns true if the cursor is at the end of the buffer
     pub fn at_end(&self) -> bool {
         self.tail.is_empty()
