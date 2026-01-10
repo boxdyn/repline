@@ -5,15 +5,15 @@
 //! 2. Performs some calculation (using [FromStr])
 //! 3. Returns a [Result] containing a [Response] or an [Err]
 
-use repline::{error::Error as RlError, Repline, Response};
+use repline::{Repline, Response, error::Error as RlError};
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut rl = Repline::with_input(
         "fn main {\r\n\tprintln(\"Foo!\")\r\n}\r\n".as_bytes(),
         "\x1b[33m",
-        "  >",
-        " ?>",
+        " .> ",
+        " ?> ",
     );
     while rl.read().is_ok() {}
 

@@ -51,8 +51,7 @@ impl<'a> Editor<'a> {
                 MoveToColumn(0),
                 Print(color),
                 Print(again),
-                Print(ResetColor),
-                Print(' ')
+                Print(ResetColor)
             ),
             c => queue!(w, Print(c)),
         }?;
@@ -66,7 +65,7 @@ impl<'a> Editor<'a> {
             n => queue!(w, MoveUp(n as u16)),
         }?;
 
-        queue!(w, Print(color), Print(begin), Print(ResetColor), Print(' '))?;
+        queue!(w, Print(color), Print(begin), Print(ResetColor))?;
         for c in head {
             self.putchar(*c, w)?;
         }
@@ -89,14 +88,7 @@ impl<'a> Editor<'a> {
         let nl = self.head.iter().rposition(is_newline).map(|n| n + 1);
         let prompt = if nl.is_some() { again } else { begin };
 
-        queue!(
-            w,
-            MoveToColumn(0),
-            Print(color),
-            Print(prompt),
-            ResetColor,
-            Print(' '),
-        )?;
+        queue!(w, MoveToColumn(0), Print(color), Print(prompt), ResetColor)?;
 
         write_chars(head.iter().skip(nl.unwrap_or(0)), w)?;
         Ok(())

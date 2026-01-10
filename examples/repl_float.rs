@@ -5,11 +5,11 @@
 //! 2. Performs some calculation (using [FromStr])
 //! 3. Returns a [Result] containing a [Response] or an [Err]
 
-use repline::{prebaked::read_and, Response};
+use repline::{Response, prebaked::read_and};
 use std::{error::Error, str::FromStr};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    read_and("\x1b[33m", "  >", " ?>", |line| {
+    read_and("\x1b[33m", " > ", "?> ", |line| {
         println!("-> {:?}", f64::from_str(line.trim())?);
         Ok(Response::Accept)
     })?;
