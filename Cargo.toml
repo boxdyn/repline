@@ -2,7 +2,7 @@
 name = "repline"
 description = "A Readline-like multiline editor for easy REPLication"
 repository = "https://github.com/boxdyn/repline"
-version = "0.0.11"
+version = "0.0.12"
 authors = ["John <j@soft.fish>"]
 edition = "2024"
 license = "MIT"
