@@ -154,7 +154,15 @@ impl<'a, R: Read> Repline<'a, R> {
 
     /// Prints a message (ideally an error) without moving the cursor
     fn print_err<W: Write>(&self, w: &mut W, value: impl std::fmt::Display) -> ReplResult<()> {
-        self.ed.print_err(value, w)
+        if self.ed.at_start() {
+            let pad = Padding(self.ed.begin.len());
+            self.ed.print_err(format_args!("{pad}{value}"), w)
+        } else if self.ed.at_line_start() {
+            let pad = Padding(self.ed.again.len());
+            self.ed.print_err(format_args!("{pad}{value}"), w)
+        } else {
+            self.ed.print_err(value, w)
+        }
     }
 
     // Prints some debug info into the editor's buffer and the provided writer
@@ -276,5 +284,16 @@ impl<'a, R: Read> Repline<'a, R> {
         while self.history.len() > self.history_cap {
             self.history.pop_front();
         }
+    }
+}
+
+/// Helper struct for padding inline-printed messages
+struct Padding(usize);
+impl std::fmt::Display for Padding {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for _ in 0..self.0 {
+            f.write_str(" ")?;
+        }
+        Ok(())
     }
 }
