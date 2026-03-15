@@ -246,7 +246,7 @@ impl<'a, R: Read> Repline<'a, R> {
                 if cfg!(debug_assertions) {
                     self.print_err(
                         w,
-                        format_args!("  \x1b[30mUnhandled control sequence: {other:?}\x1b[0m"),
+                        format_args!(" \x1b[30mUnhandled control sequence: {other:?}\x1b[0m"),
                     )?;
                 }
             }
@@ -259,10 +259,9 @@ impl<'a, R: Read> Repline<'a, R> {
         let Self { history, hindex, ed, .. } = self;
         if let Some(history) = history.get(*hindex) {
             ed.restore(history, w)?;
-            ed.print_err(
-                format_args!("  \x1b[30mHistory {hindex} restored!\x1b[0m"),
-                w,
-            )?;
+            if cfg!(debug_assertions) {
+                ed.print_err(format_args!(" \x1b[30m{hindex}\x1b[0m"), w)?;
+            }
             if upward {
                 ed.cursor_start(w)?;
             }
